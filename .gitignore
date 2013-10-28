@@ -3,4 +3,22 @@
 
 .project
 
+.gradle/**
+
 target
+
+build
+
+.gradle/1.7/taskArtifacts/cache.properties.lock
+
+.gradle/1.7/taskArtifacts/cache.properties.lock
+
+.gradle/1.7/taskArtifacts/outputFileStates.bin
+
+.gradle/1.7/taskArtifacts/cache.properties.lock
+
+.gradle/1.7/taskArtifacts/cache.properties.lock
+
+.gradle/1.7/taskArtifacts/taskArtifacts.bin
+
+.gradle/1.7/taskArtifacts/taskArtifacts.bin
