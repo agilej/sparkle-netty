@@ -1,0 +1,17 @@
+apply plugin: "java"
+apply plugin: "eclipse"
+ 
+repositories {
+	mavenCentral()
+	mavenLocal()
+}
+ 
+dependencies {
+	compile (
+		"com.sparkle:sparkle:1.0-SNAPSHOT",
+		"io.netty:netty:3.6.5.Final",
+		"javax.servlet:javax.servlet-api:3.0.1"
+	)
+}
+
+
