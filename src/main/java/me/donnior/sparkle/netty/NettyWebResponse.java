@@ -43,8 +43,9 @@ public class NettyWebResponse implements WebResponse {
         this.response.setHeader(HttpHeaders.Names.CONTENT_TYPE, type);
     }
 
-    @SuppressWarnings("deprecation")
-    public void close() {
+    
+    public void prepareFlush() {
+        @SuppressWarnings("deprecation")
         ChannelBuffer buf = ChannelBuffers.copiedBuffer(this.sb.toString(), "UTF-8");
         sb.setLength(0);
 
