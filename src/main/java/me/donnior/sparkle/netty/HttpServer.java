@@ -31,6 +31,7 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 public class HttpServer {
     public static void main(String[] args) {
+        System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
         ChannelFactory factory = new NioServerSocketChannelFactory(
                     Executors.newFixedThreadPool(16),
                     Executors.newFixedThreadPool(16));

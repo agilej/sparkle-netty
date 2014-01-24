@@ -22,7 +22,7 @@ import org.jboss.netty.handler.codec.http.HttpVersion;
 
 public class HttpRequestHandler extends SimpleChannelUpstreamHandler {
 
-    private static SparkleEngine sparkle = new SparkleEngine();
+    private static SparkleEngine sparkle = new SparkleEngine(new NettySpecific());
     
     static Map<HttpMethod, HTTPMethod> METHOD_MAP = new HashMap<HttpMethod, HTTPMethod>(); 
     
