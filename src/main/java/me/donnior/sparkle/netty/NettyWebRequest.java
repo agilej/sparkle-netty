@@ -57,7 +57,10 @@ public class NettyWebRequest implements WebRequest {
     @Override
     public String[] getParameterValues(String name) {
         List<String> values = this.decoder.getParameters().get(name);
-        int size = (values != null) ? values.size() : 0;
+        if(values == null) {
+            return new String[]{};
+        }
+        int size =  values.size();
         String[] valueArr = new String[size];
         return values.toArray(valueArr);
     }
