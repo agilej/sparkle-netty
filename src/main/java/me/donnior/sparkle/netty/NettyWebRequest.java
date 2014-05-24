@@ -1,7 +1,9 @@
 package me.donnior.sparkle.netty;
 
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import me.donnior.sparkle.WebRequest;
 import me.donnior.sparkle.WebResponse;
@@ -11,11 +13,12 @@ import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 
 public class NettyWebRequest implements WebRequest {
-
+    
     private HttpRequest request;
     private WebResponse webResponse;
     private QueryStringDecoder decoder;
-
+    private Map<String, Object> attributes = new HashMap<String, Object>();
+    
     public NettyWebRequest(HttpRequest request, HttpResponse response) {
         this.request = request;
         this.webResponse = new NettyWebResponse(response);
@@ -79,6 +82,16 @@ public class NettyWebRequest implements WebRequest {
     @Override
     public WebResponse getWebResponse() {
         return this.webResponse;
+    }
+    
+    @Override
+    public <T> T getAttribute(String name) {
+        return (T)this.attributes.get(name);
+    }
+    
+    @Override
+    public void setAttribute(String name, Object value) {
+        this.attributes.put(name, value);
     }
     
 
