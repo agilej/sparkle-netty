@@ -1,13 +1,15 @@
 package me.donnior.sparkle.netty;
 
-import me.donnior.sparkle.core.resolver.AbstractParamResolversManager;
+import me.donnior.sparkle.core.resolver.AbstractArgumentResolverManager;
 import me.donnior.sparkle.core.resolver.PathVariableArgumentResolver;
 import me.donnior.sparkle.core.resolver.SimpleArgumentResolver;
+import me.donnior.sparkle.core.resolver.WebRequestArgumentResolver;
 
 
-public class NettyParamResolversManager extends AbstractParamResolversManager {
+public class NettyParamResolversManager extends AbstractArgumentResolverManager {
     
     public NettyParamResolversManager() {
+        registerArgumentResolver(new WebRequestArgumentResolver());
         registerArgumentResolver(new SimpleArgumentResolver());
         registerArgumentResolver(new PathVariableArgumentResolver());
     }
