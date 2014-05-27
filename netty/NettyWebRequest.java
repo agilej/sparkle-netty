@@ -8,9 +8,16 @@ import java.util.Map;
 import me.donnior.sparkle.WebRequest;
 import me.donnior.sparkle.WebResponse;
 
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.codec.http.QueryStringDecoder;
+import org.jboss.netty.handler.codec.http.multipart.Attribute;
+import org.jboss.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
+import org.jboss.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import org.jboss.netty.handler.codec.http.multipart.InterfaceHttpData;
+import org.jboss.netty.handler.codec.http.multipart.InterfaceHttpData.HttpDataType;
 
 public class NettyWebRequest implements WebRequest {
     
@@ -28,6 +35,11 @@ public class NettyWebRequest implements WebRequest {
     public NettyWebRequest(HttpRequest request, WebResponse webResponse) {
         this.request = request;
         this.webResponse = webResponse;
+    }
+    
+    @Override
+    public String getBody(){
+        return this.request.getContent().toString("UTF-8");
     }
     
     @Override
@@ -59,6 +71,16 @@ public class NettyWebRequest implements WebRequest {
 
     @Override
     public String[] getParameterValues(String name) {
+        //TODO add get params from nettyp post body
+//        if(this.getMethod().toLowerCase().equals("post")){
+//            throw new RuntimeException("currently not support get param from post request");
+//        }
+        try {
+            this.messageReceived();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
         List<String> values = this.decoder.getParameters().get(name);
         if(values == null) {
             return new String[]{};
@@ -84,6 +106,7 @@ public class NettyWebRequest implements WebRequest {
         return this.webResponse;
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T getAttribute(String name) {
         return (T)this.attributes.get(name);
@@ -94,5 +117,21 @@ public class NettyWebRequest implements WebRequest {
         this.attributes.put(name, value);
     }
     
+    
+    public void messageReceived() throws Exception {
+        
+        HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(new DefaultHttpDataFactory(false), this.request);
+        
+        List<InterfaceHttpData> datas = decoder.getBodyHttpDatas();
+        for(InterfaceHttpData data : datas){
+            if (data.getHttpDataType() == HttpDataType.Attribute) {
+                Attribute attribute = (Attribute) data;
+                String value = attribute.getValue();
+                String name = attribute.getName();
+                System.out.println(name + " :" + value);
+             }
+        }
+        
+      }
 
 }
