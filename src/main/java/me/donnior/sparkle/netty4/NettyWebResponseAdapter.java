@@ -11,18 +11,20 @@ import me.donnior.sparkle.WebResponse;
 public class NettyWebResponseAdapter implements WebResponse {
 
     private DefaultFullHttpResponse response;
-    private StringBuilder sb = new StringBuilder();
     private ByteBuf bb;
 
     public NettyWebResponseAdapter(DefaultFullHttpResponse response) {
+        this.bb = response.content();
         this.response = response;
     }
     
     public NettyWebResponseAdapter() {
-        ByteBuf bb = Unpooled.buffer();
-        DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_0, HttpResponseStatus.OK, bb);
-        this.bb = bb;
-        this.response = response;
+        this(HttpVersion.HTTP_1_1);
+    }
+    
+    public NettyWebResponseAdapter(HttpVersion version) {
+        this.bb = Unpooled.buffer();
+        this.response = new DefaultFullHttpResponse(version, HttpResponseStatus.OK, bb);
     }
     
     @SuppressWarnings("unchecked")
@@ -38,9 +40,7 @@ public class NettyWebResponseAdapter implements WebResponse {
 
     @Override
     public void write(String string) {
-        this.sb.append(string);
         this.bb.writeBytes(string.getBytes());
-//        this.ctx.write(string);
     }
 
     @Override
@@ -52,12 +52,7 @@ public class NettyWebResponseAdapter implements WebResponse {
     public void setContentType(String type) {
         this.response.headers().set(HttpHeaders.Names.CONTENT_TYPE, type);
     }
-    
-    public StringBuilder getStringBuffer() {
-        return sb;
-    }
 
-    
     public void prepareFlush() {
         this.setHeader(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(this.bb.readableBytes()));
     }

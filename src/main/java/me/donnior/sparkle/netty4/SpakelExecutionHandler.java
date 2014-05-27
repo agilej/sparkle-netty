@@ -1,21 +1,18 @@
 package me.donnior.sparkle.netty4;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData.HttpDataType;
-import io.netty.util.CharsetUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,13 +24,14 @@ import java.util.Map.Entry;
 import me.donnior.sparkle.HTTPMethod;
 import me.donnior.sparkle.engine.SparkleEngine;
 
-import static io.netty.handler.codec.http.HttpHeaders.Names.*;
-import static io.netty.handler.codec.http.HttpHeaders.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class NettyHttpRequestHandler extends SimpleChannelInboundHandler {
+public class SpakelExecutionHandler extends SimpleChannelInboundHandler {
 
-    private static SparkleEngine sparkle = new SparkleEngine(
-            new NettySpecific());
+    private final static Logger logger = LoggerFactory.getLogger(SpakelExecutionHandler.class);
+    
+    private static SparkleEngine sparkle = new SparkleEngine(new NettySpecific());
 
     static Map<HttpMethod, HTTPMethod> METHOD_MAP = new HashMap<HttpMethod, HTTPMethod>();
 
@@ -52,21 +50,18 @@ public class NettyHttpRequestHandler extends SimpleChannelInboundHandler {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object e)
             throws Exception {
-        System.out.println("in channel read " +  e.getClass());
-        if (e instanceof HttpRequest) {
-            
-            DefaultHttpRequest request = (DefaultHttpRequest) e;
-                        // boolean keepAlive = request.isKeepAlive();
+        System.out.println(e.getClass());
+        if (e instanceof FullHttpRequest) {
+            System.out.println(FullHttpRequest.class);
+            logger.debug("begin to process http request using sparkle framework");
 
-            
+            FullHttpRequest request = (FullHttpRequest) e;
             NettyWebRequestAdapter webRequest = new NettyWebRequestAdapter(request);
 
-            System.out.println("processing request with sparkle!!");
             sparkle.doService(webRequest, methodFor(request.getMethod()));
 
             NettyWebResponseAdapter nwr = (NettyWebResponseAdapter) webRequest.getWebResponse();
             nwr.prepareFlush();
-            
             
             DefaultFullHttpResponse original = nwr.getOriginalResponse();
             

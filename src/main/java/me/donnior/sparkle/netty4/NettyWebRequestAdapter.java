@@ -1,7 +1,6 @@
 package me.donnior.sparkle.netty4;
 
-import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
 
 import java.nio.charset.Charset;
@@ -14,29 +13,24 @@ import me.donnior.sparkle.WebResponse;
 
 public class NettyWebRequestAdapter implements WebRequest {
 
-    private HttpRequest request;
+    private FullHttpRequest request;
     private NettyWebResponseAdapter webResponse;
     private QueryStringDecoder decoder;
     private Map<String, Object> attributes = new HashMap<String, Object>();
 
-    public NettyWebRequestAdapter(HttpRequest request) {
-        this.request = request;
-        this.webResponse = new NettyWebResponseAdapter();
-        this.decoder = new QueryStringDecoder(this.request.getUri());
+    public NettyWebRequestAdapter(FullHttpRequest request) {
+        this(request, new NettyWebResponseAdapter(request.getProtocolVersion()));
     }
     
-    public NettyWebRequestAdapter(HttpRequest request, NettyWebResponseAdapter webResponse) {
+    public NettyWebRequestAdapter(FullHttpRequest request, NettyWebResponseAdapter webResponse) {
         this.request = request;
         this.webResponse = webResponse;
+        this.decoder = new QueryStringDecoder(this.request.getUri());
     }
 
     @Override
     public String getBody() {
-        if(this.request instanceof HttpContent){
-            return ((HttpContent)this.request).content().toString(Charset.forName("UTF-8"));
-        } else {
-            throw new RuntimeException("Unsupport get body for class not a HttpContent");
-        }
+        return this.request.content().toString(Charset.forName("UTF-8"));
     }
 
     @Override

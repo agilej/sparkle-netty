@@ -22,39 +22,37 @@
  */
 package me.donnior.sparkle.netty4;
 
-import io.netty.bootstrap.ChannelFactory;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HttpServer {
+    
+    private final static Logger logger = LoggerFactory.getLogger(HttpServer.class);
+    
     public static void main(String[] args) {
         System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
-//        ChannelFactory factory = new NioServerSocketChannelFactory(
-//                    Executors.newFixedThreadPool(16),
-//                    Executors.newFixedThreadPool(16));
-//        
+
         EventLoopGroup bossGroup = new NioEventLoopGroup();  
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(bossGroup, workerGroup);
         bootstrap.channel(NioServerSocketChannel.class);
-//        bootstrap.setPipelineFactory(new HttpServerPipelineFactory());
-//        bootstrap.channelFactory(new HttpServerChannelFactory());
-        bootstrap.childHandler(new ChatServerInitializer());
-//        bootstrap.setOption("child.tcpNoDelay", true);
-//        bootstrap.setOption("child.keepAlive", true);
-
-        // Bind and start to accept incoming connections.
+        bootstrap.childHandler(new SparkleChannelInitializer());
+        
+        bootstrap.childOption(ChannelOption.TCP_NODELAY, true);
+        
         try {
             bootstrap.bind(new InetSocketAddress(8080)).sync();
+            logger.info("Server started and listening at 8080 ...\n");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
