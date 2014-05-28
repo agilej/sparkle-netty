@@ -23,7 +23,10 @@ public class SparkleChannelInitializer extends ChannelInitializer<SocketChannel>
          */
         pipeline.addLast("aggregator", new HttpObjectAggregator(1048576));
         pipeline.addLast("encoder", new HttpResponseEncoder());
-
+        
+        //pipeline.addLast("deflater", new HttpContentCompressor());
+        
+        pipeline.addLast("static", new HttpStaticFileServerHandler(true));
         pipeline.addLast("handler", new SpakelExecutionHandler());
 
         

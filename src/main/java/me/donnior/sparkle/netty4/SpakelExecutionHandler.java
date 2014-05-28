@@ -1,10 +1,11 @@
 package me.donnior.sparkle.netty4;
 
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaders.Values;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
@@ -13,6 +14,8 @@ import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData.HttpDataType;
+import static io.netty.handler.codec.http.HttpHeaders.Names.*;
+import static io.netty.handler.codec.http.HttpHeaders.*;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,7 +30,7 @@ import me.donnior.sparkle.engine.SparkleEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SpakelExecutionHandler extends SimpleChannelInboundHandler {
+public class SpakelExecutionHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private final static Logger logger = LoggerFactory.getLogger(SpakelExecutionHandler.class);
     
@@ -47,40 +50,44 @@ public class SpakelExecutionHandler extends SimpleChannelInboundHandler {
         // TODO support more http methods
     }
 
+    
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Object e)
+    public void channelReadComplete(ChannelHandlerContext ctx) {
+        ctx.flush();
+    }
+    
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request)
             throws Exception {
-        System.out.println(e.getClass());
-        if (e instanceof FullHttpRequest) {
-            System.out.println(FullHttpRequest.class);
-            logger.debug("begin to process http request using sparkle framework");
+        
+        logger.debug("begin to process http request using sparkle framework");
+        
+        boolean keepAlive = isKeepAlive(request);
+        
+        NettyWebRequestAdapter webRequest = new NettyWebRequestAdapter(request);
 
-            FullHttpRequest request = (FullHttpRequest) e;
-            NettyWebRequestAdapter webRequest = new NettyWebRequestAdapter(request);
+        sparkle.doService(webRequest, methodFor(request.getMethod()));
 
-            sparkle.doService(webRequest, methodFor(request.getMethod()));
-
-            NettyWebResponseAdapter nwr = (NettyWebResponseAdapter) webRequest.getWebResponse();
-            nwr.prepareFlush();
-            
-            DefaultFullHttpResponse original = nwr.getOriginalResponse();
-            
-
-            ctx.writeAndFlush(original);
+        NettyWebResponseAdapter nwr = (NettyWebResponseAdapter) webRequest.getWebResponse();
+        nwr.prepareFlush();
+        
+        DefaultFullHttpResponse original = nwr.getOriginalResponse();
+        
+//            ctx.writeAndFlush(original);
+        if (!keepAlive) {
+            ctx.write(original).addListener(ChannelFutureListener.CLOSE);
+        } else {
+            original.headers().set(CONNECTION, Values.KEEP_ALIVE);
+            ctx.write(original);
         }
-//        
-//        if (e instanceof HttpContent) {
-//            HttpContent httpContent = (HttpContent) e;
-//            
-//            ByteBuf content = httpContent.content();
-//            System.out.println("get a httpcontent : " + content.toString(Charset.forName("UTF-8")));
-//        }
-//        
-
-        // 
-        // if(!keepAlive){
-        // future.addListener(ChannelFutureListener.CLOSE);
-        // }
+    
+    
+    }
+    
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
+            throws Exception {
+        cause.printStackTrace();
     }
 
     private HTTPMethod methodFor(HttpMethod method) {
