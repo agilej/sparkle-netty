@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import me.donnior.sparkle.Multipart;
 import me.donnior.sparkle.WebRequest;
 import me.donnior.sparkle.WebResponse;
 
@@ -109,6 +110,11 @@ public class NettyWebRequestAdapter implements WebRequest {
         this.attributes.put(name, value);
     }
 
+    @Override
+    public List<Multipart> getMultiparts() {
+        throw new RuntimeException("not implementated yet!");
+    }
+    
     // public void messageReceived() throws Exception {
     //
     // HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(new

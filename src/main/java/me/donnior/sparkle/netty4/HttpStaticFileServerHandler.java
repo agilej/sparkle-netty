@@ -102,6 +102,15 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
     @Override
     public void channelRead0(
             ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
+        final String uri = request.getUri();
+        final String path = sanitizeUri(uri);
+        
+        if(!uri.startsWith("/static/")){
+            ctx.fireChannelRead(request.retain());  //need retian
+            return;
+        }
+        
+        
         if (!request.getDecoderResult().isSuccess()) {
             sendError(ctx, BAD_REQUEST);
             return;
@@ -112,12 +121,6 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
             return;
         }
 
-        final String uri = request.getUri();
-        final String path = sanitizeUri(uri);
-        if(!uri.startsWith("/static/")){
-            ctx.fireChannelRead(request.retain());  //need retian
-            return;
-        }
         
         
         if (path == null) {
