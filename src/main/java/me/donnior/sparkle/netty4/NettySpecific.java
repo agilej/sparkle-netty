@@ -17,7 +17,7 @@ public class NettySpecific implements EnvSpecific {
     }
 
     @Override
-    public ViewRenderManager getViewRendersResovler() {
+    public ViewRenderManager getViewRendersManager() {
         return vrr;
     }
     
