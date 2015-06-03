@@ -76,9 +76,13 @@ public class SpakelExecutionHandler extends SimpleChannelInboundHandler<FullHttp
 //            ctx.writeAndFlush(original);
         if (!keepAlive) {
             ctx.write(original).addListener(ChannelFutureListener.CLOSE);
+            ctx.flush();
+            nwr.closeWriter();
         } else {
             original.headers().set(CONNECTION, Values.KEEP_ALIVE);
             ctx.write(original);
+            ctx.flush();
+            nwr.closeWriter();
         }
     
     

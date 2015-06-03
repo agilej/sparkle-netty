@@ -1,6 +1,7 @@
 package me.donnior.sparkle.netty4;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -8,24 +9,33 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import me.donnior.sparkle.WebResponse;
 
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+
 public class NettyWebResponseAdapter implements WebResponse {
 
     private DefaultFullHttpResponse response;
     private ByteBuf bb;
+    private Writer writer;
 
-    public NettyWebResponseAdapter(DefaultFullHttpResponse response) {
-        this.bb = response.content();
-        this.response = response;
-    }
-    
     public NettyWebResponseAdapter() {
         this(HttpVersion.HTTP_1_1);
     }
-    
+
     public NettyWebResponseAdapter(HttpVersion version) {
-        this.bb = Unpooled.buffer();
-        this.response = new DefaultFullHttpResponse(version, HttpResponseStatus.OK, bb);
+        this(new DefaultFullHttpResponse(version, HttpResponseStatus.OK, Unpooled.buffer()));
     }
+
+    public NettyWebResponseAdapter(DefaultFullHttpResponse response) {
+        this.response = response;
+        this.bb = response.content();
+        
+        ByteBufOutputStream bbos = new ByteBufOutputStream(this.bb);
+        this.writer = new BufferedWriter(new OutputStreamWriter(bbos));
+    }
+
+
     
     @SuppressWarnings("unchecked")
     @Override
@@ -55,6 +65,21 @@ public class NettyWebResponseAdapter implements WebResponse {
 
     public void prepareFlush() {
         this.setHeader(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(this.bb.readableBytes()));
+    }
+
+    @Override
+    public Writer getWriter(){
+        // ByteBufOutputStream bbos = new ByteBufOutputStream(this.bb);
+        // return new BufferedWriter(new OutputStreamWriter(bbos));
+        return this.writer;
+    }
+
+    public void closeWriter(){
+        try{
+            this.writer.close();
+        } catch(Exception ex){
+            ex.printStackTrace();
+        }
     }
 
 }
