@@ -24,3 +24,8 @@ build
 .gradle/1.7/taskArtifacts/taskArtifacts.bin
 
 async.log
+
+*.iml
+*.ipr
+*.iws
+
