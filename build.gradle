@@ -1,17 +1,26 @@
-apply plugin: "java"
-apply plugin: "eclipse"
- 
-repositories {
-	mavenCentral()
-	mavenLocal()
+group = 'com.sparkle'
+version = '1.0-SNAPSHOT'
+
+repositories {  
+    mavenLocal()
+    mavenCentral()
 }
+
+apply plugin: 'java'
+apply plugin: 'maven'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
  
 dependencies {
-	compile (
-		"com.sparkle:sparkle:1.0-SNAPSHOT",
-		"io.netty:netty:3.6.5.Final",
-		"javax.servlet:javax.servlet-api:3.0.1"
-	)
+	compile	"com.sparkle:sparkle-core:1.0-SNAPSHOT"
+	compile	"io.netty:netty-all:4.0.19.Final"
 }
 
-
+uploadArchives {
+    repositories {
+       flatDir {
+           dirs '~/.m2/repository/'
+       }
+    }
+}
