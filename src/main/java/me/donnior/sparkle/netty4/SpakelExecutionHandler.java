@@ -3,12 +3,8 @@ package me.donnior.sparkle.netty4;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.HttpHeaders.Values;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
@@ -61,9 +57,6 @@ public class SpakelExecutionHandler extends SimpleChannelInboundHandler<FullHttp
             throws Exception {
         
         logger.debug("begin to process http request using sparkle framework");
-        
-        boolean keepAlive = isKeepAlive(request);
-        
         NettyWebRequestAdapter webRequest = new NettyWebRequestAdapter(request);
 
         sparkle.doService(webRequest, methodFor(request.getMethod()));
@@ -74,6 +67,7 @@ public class SpakelExecutionHandler extends SimpleChannelInboundHandler<FullHttp
         DefaultFullHttpResponse original = nwr.getOriginalResponse();
         
 //            ctx.writeAndFlush(original);
+        boolean keepAlive = isKeepAlive(request);
         if (!keepAlive) {
             ctx.write(original).addListener(ChannelFutureListener.CLOSE);
             ctx.flush();
@@ -84,8 +78,6 @@ public class SpakelExecutionHandler extends SimpleChannelInboundHandler<FullHttp
             ctx.flush();
             nwr.closeWriter();
         }
-    
-    
     }
     
     @Override

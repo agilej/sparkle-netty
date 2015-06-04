@@ -6,18 +6,29 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
+import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HttpServer {
     
     private final static Logger logger = LoggerFactory.getLogger(HttpServer.class);
-    
+
+    private NettyHttpServerConfig config;
     
     private final int port;
 
     public HttpServer(int port) {
+        this(port, new DefaultNettyHttpServerConfig());
+    }
+
+    public HttpServer(int port, NettyHttpServerConfig config){
         this.port = port;
+        this.config = config;
+    }
+
+    public void setConfig(NettyHttpServerConfig config){
+        this.config = config;
     }
 
     public void run() throws Exception {
@@ -27,10 +38,10 @@ public class HttpServer {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
              .channel(NioServerSocketChannel.class)
-             .childHandler(new SparkleChannelInitializer())
+             .childHandler(new SparkleChannelInitializer(this.config))
              .childOption(ChannelOption.TCP_NODELAY, true);
 
-            logger.info("Server started and listening at 8080 ...\n");
+            logger.info("Server started and listening at "+ port +" ...\n");
             b.bind(port).sync().channel().closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();

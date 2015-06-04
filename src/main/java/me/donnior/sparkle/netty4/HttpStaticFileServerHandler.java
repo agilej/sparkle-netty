@@ -94,9 +94,12 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
     public static final int HTTP_CACHE_SECONDS = 60;
 
     private final boolean useSendFile;
+    private final StaticResourceRouteMatcher staticResourceRouteMatcher;
 
-    public HttpStaticFileServerHandler(boolean useSendFile) {
+
+    public HttpStaticFileServerHandler(boolean useSendFile, StaticResourceRouteMatcher staticResourceRouteMatcher) {
         this.useSendFile = useSendFile;
+        this.staticResourceRouteMatcher = staticResourceRouteMatcher;
     }
 
     @Override
@@ -105,7 +108,7 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
         final String uri = request.getUri();
         final String path = sanitizeUri(uri);
         
-        if(!uri.startsWith("/static/")){
+        if(!this.staticResourceRouteMatcher.isStaticResource(request)){
             ctx.fireChannelRead(request.retain());  //need retian
             return;
         }

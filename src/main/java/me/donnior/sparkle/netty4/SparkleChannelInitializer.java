@@ -9,6 +9,12 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 
 public class SparkleChannelInitializer extends ChannelInitializer<SocketChannel> {
 
+    private final NettyHttpServerConfig config;
+
+    public  SparkleChannelInitializer(NettyHttpServerConfig config){
+        this.config = config;
+    }
+
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
@@ -25,8 +31,10 @@ public class SparkleChannelInitializer extends ChannelInitializer<SocketChannel>
         pipeline.addLast("encoder", new HttpResponseEncoder());
         
         //pipeline.addLast("deflater", new HttpContentCompressor());
-        
-        pipeline.addLast("static", new HttpStaticFileServerHandler(true));
+
+        if (config.isStaticServeEnabled()){
+            pipeline.addLast("static", new HttpStaticFileServerHandler(true, config.staticResourceRouteMatcher()));
+        }
         pipeline.addLast("handler", new SpakelExecutionHandler());
 
         
