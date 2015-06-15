@@ -132,4 +132,9 @@ public class NettyWebRequestAdapter implements WebRequest {
     //
     // }
 
+    @Override
+    public String toString(){
+        return this.getMethod() + " " + this.getPath();
+    }
+
 }
