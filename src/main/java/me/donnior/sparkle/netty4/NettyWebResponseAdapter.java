@@ -69,8 +69,6 @@ public class NettyWebResponseAdapter implements WebResponse {
 
     @Override
     public Writer getWriter(){
-        // ByteBufOutputStream bbos = new ByteBufOutputStream(this.bb);
-        // return new BufferedWriter(new OutputStreamWriter(bbos));
         return this.writer;
     }
 

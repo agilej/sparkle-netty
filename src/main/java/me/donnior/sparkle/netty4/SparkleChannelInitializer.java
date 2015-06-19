@@ -13,7 +13,7 @@ public class SparkleChannelInitializer extends ChannelInitializer<SocketChannel>
     private final NettyHttpServerConfig config;
     private final EventExecutorGroup group;
 
-    private SparkleExecutionHandler sparkleExecutionHandler;
+    private SparkleExecutionChannelHandler sparkleExecutionChannelHandler;
     public  SparkleChannelInitializer(NettyHttpServerConfig config){
         this(config, null);
     }
@@ -21,7 +21,7 @@ public class SparkleChannelInitializer extends ChannelInitializer<SocketChannel>
     public  SparkleChannelInitializer(NettyHttpServerConfig config, EventExecutorGroup group){
         this.config = config;
         this.group = group;
-        this.sparkleExecutionHandler = new SparkleExecutionHandler();
+        this.sparkleExecutionChannelHandler = new SparkleExecutionChannelHandler();
     }
 
     @Override
@@ -52,7 +52,7 @@ public class SparkleChannelInitializer extends ChannelInitializer<SocketChannel>
          * 2. if this.group is null, the actionHandler will bind to eventLoop thread
          *
          */
-        pipeline.addLast(this.group, "actionHandler", this.sparkleExecutionHandler);
+        pipeline.addLast(this.group, "actionHandler", this.sparkleExecutionChannelHandler);
 //        if (this.group != null){
 //            pipeline.addLast(this.group, "actionHandler", this.sparkleExecutionHandler);
 //        } else {

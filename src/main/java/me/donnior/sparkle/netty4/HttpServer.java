@@ -12,6 +12,8 @@ import io.netty.util.concurrent.EventExecutorGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 public class HttpServer {
     
     private final static Logger logger = LoggerFactory.getLogger(HttpServer.class);
@@ -60,8 +62,9 @@ public class HttpServer {
 
     
     public static void main(String[] args) throws Exception{
-        System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
-        
+//        System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
+        System.setProperty("server.root", new File(".").getAbsolutePath());
+
         int port;
         if (args.length > 0) {
             port = Integer.parseInt(args[0]);

@@ -15,13 +15,11 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.*;
 import static io.netty.handler.codec.http.HttpHeaders.*;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import me.donnior.sparkle.HTTPMethod;
 import me.donnior.sparkle.WebRequest;
 import me.donnior.sparkle.engine.SparkleEngine;
 
@@ -29,25 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ChannelHandler.Sharable
-public class SparkleExecutionHandler extends SimpleChannelInboundHandler<FullHttpRequest> implements AsyncRequestHandler{
+public class SparkleExecutionChannelHandler extends SimpleChannelInboundHandler<FullHttpRequest> implements AsyncRequestHandler{
 
-    private final static Logger logger = LoggerFactory.getLogger(SparkleExecutionHandler.class);
+    private final static Logger logger = LoggerFactory.getLogger(SparkleExecutionChannelHandler.class);
     
     private static SparkleEngine sparkle = new SparkleEngine(new NettySpecific());
-
-    static Map<HttpMethod, HTTPMethod> METHOD_MAP = new HashMap<HttpMethod, HTTPMethod>();
-
-    static {
-        METHOD_MAP.put(HttpMethod.GET, HTTPMethod.GET);
-        METHOD_MAP.put(HttpMethod.POST, HTTPMethod.POST);
-        METHOD_MAP.put(HttpMethod.PUT, HTTPMethod.PUT);
-        METHOD_MAP.put(HttpMethod.DELETE, HTTPMethod.DELETE);
-        METHOD_MAP.put(HttpMethod.HEAD, HTTPMethod.HEAD);
-        METHOD_MAP.put(HttpMethod.OPTIONS, HTTPMethod.OPTIONS);
-        METHOD_MAP.put(HttpMethod.TRACE, HTTPMethod.TRACE);
-
-        // TODO support more http methods
-    }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
@@ -59,8 +43,8 @@ public class SparkleExecutionHandler extends SimpleChannelInboundHandler<FullHtt
             throws Exception {
 //        logger.debug("begin to process http request using sparkle framework");
 
-        final WebRequest webRequest = new NettyWebRequestAdapter(ctx, request, this);
-        sparkle.doService(webRequest, methodFor(request.getMethod()));
+        final NettyWebRequestAdapter webRequest = new NettyWebRequestAdapter(ctx, request, this);
+        sparkle.doService(webRequest, webRequest.getHttpMethod());
 
         if (webRequest.isAsync()){
 
@@ -82,28 +66,19 @@ public class SparkleExecutionHandler extends SimpleChannelInboundHandler<FullHtt
         boolean keepAlive = isKeepAlive(request);
         if (!keepAlive) {
             ctx.write(original).addListener(ChannelFutureListener.CLOSE);
-            ctx.flush();
-            nwr.closeWriter();
         } else {
             original.headers().set(CONNECTION, Values.KEEP_ALIVE);
             ctx.write(original);
-            ctx.flush();
-            nwr.closeWriter();
         }
-
+        ctx.flush();
+        nwr.closeWriter();
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
-            throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         cause.printStackTrace();
         logger.error(cause.getMessage());
     }
-
-    private HTTPMethod methodFor(HttpMethod method) {
-        return METHOD_MAP.get(method);
-    }
-    
     
     private void test(HttpRequest httpRequest) throws IOException{
         Map<String, List<String>> requestParameters;

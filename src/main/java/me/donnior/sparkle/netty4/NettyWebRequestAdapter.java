@@ -2,6 +2,7 @@ package me.donnior.sparkle.netty4;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.QueryStringDecoder;
 
 import java.nio.charset.Charset;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import me.donnior.sparkle.HTTPMethod;
 import me.donnior.sparkle.Multipart;
 import me.donnior.sparkle.WebRequest;
 import me.donnior.sparkle.WebResponse;
@@ -22,6 +24,20 @@ public class NettyWebRequestAdapter implements WebRequest {
     private AsyncRequestHandler asyncRequestHandler;
     private ChannelHandlerContext ctx;
     private volatile boolean async = false;
+
+    static Map<HttpMethod, HTTPMethod> METHOD_MAP = new HashMap<HttpMethod, HTTPMethod>();
+
+    static {
+        METHOD_MAP.put(HttpMethod.GET, HTTPMethod.GET);
+        METHOD_MAP.put(HttpMethod.POST, HTTPMethod.POST);
+        METHOD_MAP.put(HttpMethod.PUT, HTTPMethod.PUT);
+        METHOD_MAP.put(HttpMethod.DELETE, HTTPMethod.DELETE);
+        METHOD_MAP.put(HttpMethod.HEAD, HTTPMethod.HEAD);
+        METHOD_MAP.put(HttpMethod.OPTIONS, HTTPMethod.OPTIONS);
+        METHOD_MAP.put(HttpMethod.TRACE, HTTPMethod.TRACE);
+        // TODO support more http methods
+    }
+
 
     public NettyWebRequestAdapter(ChannelHandlerContext ctx, FullHttpRequest request) {
         this(ctx, request, new NettyWebResponseAdapter(request.getProtocolVersion()));
@@ -157,6 +173,10 @@ public class NettyWebRequestAdapter implements WebRequest {
     // }
     //
     // }
+
+    public HTTPMethod getHttpMethod(){
+        return METHOD_MAP.get(request.getMethod());
+    }
 
     @Override
     public String toString(){
