@@ -1,5 +1,6 @@
 package me.donnior.sparkle.netty4;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
 
@@ -18,15 +19,28 @@ public class NettyWebRequestAdapter implements WebRequest {
     private NettyWebResponseAdapter webResponse;
     private QueryStringDecoder decoder;
     private Map<String, Object> attributes = new HashMap<String, Object>();
+    private AsyncRequestHandler asyncRequestHandler;
+    private ChannelHandlerContext ctx;
+    private volatile boolean async = false;
 
-    public NettyWebRequestAdapter(FullHttpRequest request) {
-        this(request, new NettyWebResponseAdapter(request.getProtocolVersion()));
+    public NettyWebRequestAdapter(ChannelHandlerContext ctx, FullHttpRequest request) {
+        this(ctx, request, new NettyWebResponseAdapter(request.getProtocolVersion()));
     }
-    
-    public NettyWebRequestAdapter(FullHttpRequest request, NettyWebResponseAdapter webResponse) {
+
+    public NettyWebRequestAdapter(ChannelHandlerContext ctx, FullHttpRequest request, AsyncRequestHandler asyncRequestHandler) {
+        this(ctx, request, new NettyWebResponseAdapter(request.getProtocolVersion()), asyncRequestHandler);
+    }
+
+    public NettyWebRequestAdapter(ChannelHandlerContext ctx, FullHttpRequest request, NettyWebResponseAdapter webResponse) {
+        this(ctx, request, webResponse, null);
+    }
+
+    public NettyWebRequestAdapter(ChannelHandlerContext ctx, FullHttpRequest request, NettyWebResponseAdapter webResponse, AsyncRequestHandler asyncRequestHandler) {
+        this.ctx = ctx;
         this.request = request;
         this.webResponse = webResponse;
         this.decoder = new QueryStringDecoder(this.request.getUri());
+        this.asyncRequestHandler = asyncRequestHandler;
     }
 
     @Override
@@ -114,7 +128,19 @@ public class NettyWebRequestAdapter implements WebRequest {
     public List<Multipart> getMultiparts() {
         throw new RuntimeException("not implementated yet!");
     }
-    
+
+    public void startAsync(){
+        this.async = true;
+    }
+
+    public boolean isAsync(){
+        return this.async;
+    }
+
+    public void completeAsync(){
+        this.asyncRequestHandler.completeAsync(this.ctx, this);
+    }
+
     // public void messageReceived() throws Exception {
     //
     // HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(new

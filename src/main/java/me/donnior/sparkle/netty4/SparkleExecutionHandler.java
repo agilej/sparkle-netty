@@ -1,6 +1,7 @@
 package me.donnior.sparkle.netty4;
 
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
@@ -21,14 +22,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import me.donnior.sparkle.HTTPMethod;
+import me.donnior.sparkle.WebRequest;
 import me.donnior.sparkle.engine.SparkleEngine;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SpakelExecutionHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+@ChannelHandler.Sharable
+public class SparkleExecutionHandler extends SimpleChannelInboundHandler<FullHttpRequest> implements AsyncRequestHandler{
 
-    private final static Logger logger = LoggerFactory.getLogger(SpakelExecutionHandler.class);
+    private final static Logger logger = LoggerFactory.getLogger(SparkleExecutionHandler.class);
     
     private static SparkleEngine sparkle = new SparkleEngine(new NettySpecific());
 
@@ -46,27 +49,36 @@ public class SpakelExecutionHandler extends SimpleChannelInboundHandler<FullHttp
         // TODO support more http methods
     }
 
-    
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
         ctx.flush();
     }
     
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request)
+    protected void channelRead0(final ChannelHandlerContext ctx, final FullHttpRequest request)
             throws Exception {
-        
-        logger.debug("begin to process http request using sparkle framework");
-        NettyWebRequestAdapter webRequest = new NettyWebRequestAdapter(request);
+//        logger.debug("begin to process http request using sparkle framework");
 
+        final WebRequest webRequest = new NettyWebRequestAdapter(ctx, request, this);
         sparkle.doService(webRequest, methodFor(request.getMethod()));
 
+        if (webRequest.isAsync()){
+
+        } else {
+            completeAsync(ctx, webRequest);
+        }
+
+    }
+
+    @Override
+    public void completeAsync(ChannelHandlerContext ctx, WebRequest webRequest){
         NettyWebResponseAdapter nwr = (NettyWebResponseAdapter) webRequest.getWebResponse();
         nwr.prepareFlush();
-        
+
         DefaultFullHttpResponse original = nwr.getOriginalResponse();
-        
-//            ctx.writeAndFlush(original);
+
+        FullHttpRequest request = webRequest.getOriginalRequest();
+
         boolean keepAlive = isKeepAlive(request);
         if (!keepAlive) {
             ctx.write(original).addListener(ChannelFutureListener.CLOSE);
@@ -78,12 +90,14 @@ public class SpakelExecutionHandler extends SimpleChannelInboundHandler<FullHttp
             ctx.flush();
             nwr.closeWriter();
         }
+
     }
-    
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
             throws Exception {
         cause.printStackTrace();
+        logger.error(cause.getMessage());
     }
 
     private HTTPMethod methodFor(HttpMethod method) {

@@ -23,5 +23,10 @@ public class DefaultNettyHttpServerConfig implements NettyHttpServerConfig{
         return DEFAULT_STATIC_RESOURCE_MATCHER;
     }
 
+    @Override
+    public boolean useNioEventLoopAsFrameworkExecutor() {
+        return true;
+    }
+
 
 }

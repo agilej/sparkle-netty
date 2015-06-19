@@ -87,7 +87,7 @@ import static io.netty.handler.codec.http.HttpVersion.*;
  *
  * </pre>
  */
-public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+public class StaticResourceServeHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     public static final String HTTP_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
     public static final String HTTP_DATE_GMT_TIMEZONE = "GMT";
@@ -97,23 +97,20 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
     private final StaticResourceRouteMatcher staticResourceRouteMatcher;
 
 
-    public HttpStaticFileServerHandler(boolean useSendFile, StaticResourceRouteMatcher staticResourceRouteMatcher) {
+    public StaticResourceServeHandler(boolean useSendFile, StaticResourceRouteMatcher staticResourceRouteMatcher) {
         this.useSendFile = useSendFile;
         this.staticResourceRouteMatcher = staticResourceRouteMatcher;
     }
 
     @Override
-    public void channelRead0(
-            ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
+    public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
         final String uri = request.getUri();
-        final String path = sanitizeUri(uri);
-        
+
         if(!this.staticResourceRouteMatcher.isStaticResource(request)){
             ctx.fireChannelRead(request.retain());  //need retian
             return;
         }
-        
-        
+
         if (!request.getDecoderResult().isSuccess()) {
             sendError(ctx, BAD_REQUEST);
             return;
@@ -124,8 +121,7 @@ public class HttpStaticFileServerHandler extends SimpleChannelInboundHandler<Ful
             return;
         }
 
-        
-        
+        final String path = sanitizeUri(uri);
         if (path == null) {
             sendError(ctx, FORBIDDEN);
             return;

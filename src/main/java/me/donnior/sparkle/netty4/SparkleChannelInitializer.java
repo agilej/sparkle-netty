@@ -6,13 +6,22 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.util.concurrent.EventExecutorGroup;
 
 public class SparkleChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     private final NettyHttpServerConfig config;
+    private final EventExecutorGroup group;
 
+    private SparkleExecutionHandler sparkleExecutionHandler;
     public  SparkleChannelInitializer(NettyHttpServerConfig config){
+        this(config, null);
+    }
+
+    public  SparkleChannelInitializer(NettyHttpServerConfig config, EventExecutorGroup group){
         this.config = config;
+        this.group = group;
+        this.sparkleExecutionHandler = new SparkleExecutionHandler();
     }
 
     @Override
@@ -33,10 +42,22 @@ public class SparkleChannelInitializer extends ChannelInitializer<SocketChannel>
         //pipeline.addLast("deflater", new HttpContentCompressor());
 
         if (config.isStaticServeEnabled()){
-            pipeline.addLast("static", new HttpStaticFileServerHandler(true, config.staticResourceRouteMatcher()));
+            pipeline.addLast("staticResourceHandler", new StaticResourceServeHandler(true, config.staticResourceRouteMatcher()));
         }
-        pipeline.addLast("handler", new SpakelExecutionHandler());
 
-        
+        /*
+         * 1. since SparkleExecutionHandler is thread safe, can be marked as @Sharable,
+         * we don't need new it for every channel's pipeline
+         *
+         * 2. if this.group is null, the actionHandler will bind to eventLoop thread
+         *
+         */
+        pipeline.addLast(this.group, "actionHandler", this.sparkleExecutionHandler);
+//        if (this.group != null){
+//            pipeline.addLast(this.group, "actionHandler", this.sparkleExecutionHandler);
+//        } else {
+//            pipeline.addLast("actionHandler", this.sparkleExecutionHandler);
+//        }
+
     }
 }
