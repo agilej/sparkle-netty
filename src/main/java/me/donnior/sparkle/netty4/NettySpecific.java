@@ -1,6 +1,6 @@
 package me.donnior.sparkle.netty4;
 
-import me.donnior.sparkle.core.resolver.ArgumentResolverManager;
+import me.donnior.sparkle.core.argument.ArgumentResolverManager;
 import me.donnior.sparkle.core.view.ViewRenderManager;
 import me.donnior.sparkle.engine.RequestLifeCycleManager;
 import me.donnior.sparkle.ext.EnvSpecific;
