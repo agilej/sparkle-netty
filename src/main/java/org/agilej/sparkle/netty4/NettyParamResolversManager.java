@@ -1,6 +1,6 @@
-package me.donnior.sparkle.netty4;
+package org.agilej.sparkle.netty4;
 
-import me.donnior.sparkle.core.argument.*;
+import org.agilej.sparkle.core.argument.*;
 
 
 public class NettyParamResolversManager extends AbstractArgumentResolverManager {

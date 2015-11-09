@@ -1,7 +1,7 @@
-package me.donnior.sparkle.netty4;
+package org.agilej.sparkle.netty4;
 
-import me.donnior.sparkle.core.ActionMethod;
-import me.donnior.sparkle.engine.RequestLifeCycleManager;
+import org.agilej.sparkle.core.ActionMethod;
+import org.agilej.sparkle.engine.RequestLifeCycleManager;
 
 public class NettyRequestLifeCycleManager implements RequestLifeCycleManager {
 

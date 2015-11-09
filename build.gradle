@@ -1,4 +1,4 @@
-group = 'com.sparkle'
+group = 'org.agilej'
 version = '1.0-SNAPSHOT'
 
 repositories {  
@@ -13,7 +13,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
  
 dependencies {
-	compile	"com.sparkle:sparkle-core:1.0-SNAPSHOT"
+	compile	"org.agilej:sparkle-core:1.0-SNAPSHOT"
 	compile	"io.netty:netty-all:4.0.19.Final"
 }
 

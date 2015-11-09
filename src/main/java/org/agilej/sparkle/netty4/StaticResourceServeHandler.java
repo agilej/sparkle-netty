@@ -1,4 +1,4 @@
-package me.donnior.sparkle.netty4;
+package org.agilej.sparkle.netty4;
 
 
 import io.netty.buffer.Unpooled;

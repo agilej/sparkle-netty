@@ -1,7 +1,7 @@
-package me.donnior.sparkle.netty4;
+package org.agilej.sparkle.netty4;
 
 import io.netty.channel.ChannelHandlerContext;
-import me.donnior.sparkle.WebRequest;
+import org.agilej.sparkle.WebRequest;
 
 
 public interface AsyncRequestHandler {

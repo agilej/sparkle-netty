@@ -1,4 +1,4 @@
-package me.donnior.sparkle.netty4;
+package org.agilej.sparkle.netty4;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import me.donnior.sparkle.HTTPMethod;
-import me.donnior.sparkle.Multipart;
-import me.donnior.sparkle.WebRequest;
-import me.donnior.sparkle.WebResponse;
+import org.agilej.sparkle.HTTPMethod;
+import org.agilej.sparkle.Multipart;
+import org.agilej.sparkle.WebRequest;
+import org.agilej.sparkle.WebResponse;
 
 public class NettyWebRequestAdapter implements WebRequest {
 

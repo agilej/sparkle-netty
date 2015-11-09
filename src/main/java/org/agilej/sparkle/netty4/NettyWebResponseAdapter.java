@@ -1,4 +1,4 @@
-package me.donnior.sparkle.netty4;
+package org.agilej.sparkle.netty4;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
@@ -7,7 +7,7 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import me.donnior.sparkle.WebResponse;
+import org.agilej.sparkle.WebResponse;
 
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;

@@ -1,4 +1,4 @@
-package me.donnior.sparkle.netty4;
+package org.agilej.sparkle.netty4;
 
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import me.donnior.sparkle.WebRequest;
-import me.donnior.sparkle.engine.SparkleEngine;
+import org.agilej.sparkle.WebRequest;
+import org.agilej.sparkle.engine.SparkleEngine;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
