@@ -1,7 +1,7 @@
 package org.agilej.sparkle.netty4;
 
-import org.agilej.sparkle.core.ActionMethod;
-import org.agilej.sparkle.engine.RequestLifeCycleManager;
+import org.agilej.sparkle.core.action.ActionMethod;
+import org.agilej.sparkle.core.engine.RequestLifeCycleManager;
 
 public class NettyRequestLifeCycleManager implements RequestLifeCycleManager {
 

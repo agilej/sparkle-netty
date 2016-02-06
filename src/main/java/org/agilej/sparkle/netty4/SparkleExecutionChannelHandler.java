@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.agilej.sparkle.WebRequest;
-import org.agilej.sparkle.engine.SparkleEngine;
+import org.agilej.sparkle.core.engine.SparkleEngine;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
