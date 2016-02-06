@@ -19,7 +19,7 @@ For Maven pom:
 For gradle:
 
 ```
-ependencies {
+dependencies {
   compile "org.agilej:sparkle-netty:1.0-SNAPSHOT"
 }
 ```
