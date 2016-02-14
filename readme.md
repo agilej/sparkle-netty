@@ -8,7 +8,7 @@ Include 'org.agile:sparkle-netty:{version}' in your pom or gradle.
 
 For Maven pom:
 
-```
+```xml
 <dependency>
   <groupId>org.agilej</groupId>
   <artifactId>sparkle-netty</artifactId>
@@ -18,7 +18,7 @@ For Maven pom:
 
 For gradle:
 
-```
+```groovy
 dependencies {
   compile "org.agilej:sparkle-netty:1.0-SNAPSHOT"
 }
